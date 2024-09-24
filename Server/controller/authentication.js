@@ -1,4 +1,7 @@
-import { AuthenticateRepository } from "../repository/index.js";
+import {
+  AccountRepository,
+  AuthenticateRepository,
+} from "../repository/index.js";
 import bcrypt from "bcrypt";
 import dotenv from "dotenv";
 import jwt from "jsonwebtoken";
@@ -12,7 +15,7 @@ const client = jwksClient({
   requestHeaders: {
     "user-agent": "some-user-agent",
   },
-  timeout: 30000, 
+  timeout: 30000,
 });
 
 const getKey = async (header, callback) => {
@@ -36,13 +39,7 @@ const authenticate = async (req, res) => {
 };
 const signUp = async (req, res) => {
   try {
-    const {
-      firstName,
-      lastName,
-      email,
-      password,
-      confirmPassword,
-    } = req.body;
+    const { firstName, lastName, email, password, confirmPassword } = req.body;
     if (
       firstName.length == 0 ||
       lastName.length == 0 ||
@@ -104,52 +101,45 @@ const verifyUser = async (req, res) => {
 };
 const login = async (req, res) => {
   try {
-    console.log(req.body);
-    const existingUser = await AuthenticateRepository.getUserByEmail(
+    const existingAccount = await AccountRepository.findAccountByEmail(
       req.body.email
     );
-    if (!existingUser) {
+    if (!existingAccount) {
       return res.status(400).json({ error: "Email not found" });
     }
     const passwordMatch = bcrypt.compareSync(
       req.body.password,
-      existingUser.password
+      existingAccount.password
     );
     if (!passwordMatch) {
       return res.status(400).json({ error: "Bad Credential" });
     }
-    if (!existingUser.verify) {
-      return res.status(400).json({ error: "The account is not verified!" });
-    }
-    const socket = io.sockets.sockets.get(req.body.socketId);
-    if (socket) {
-      socket.userId = existingUser._id.toString();
-      console.log("user socket has been asigned with userId");
-    } else {
-      console.log("something went wrong");
-    }
-    io.sockets.sockets.forEach((sk) => {
-      console.log(`socket ${sk.id} userId ${sk?.userId}`);
-    });
+    // if (!existingAccount.verify) {
+    //   return res.status(400).json({ error: "The account is not verified!" });
+    // }
+    // const socket = io.sockets.sockets.get(req.body.socketId);
+    // if (socket) {
+    //   socket.userId = existingUser._id.toString();
+    //   console.log("user socket has been asigned with userId");
+    // } else {
+    //   console.log("something went wrong");
+    // }
+    // io.sockets.sockets.forEach((sk) => {
+    //   console.log(`socket ${sk.id} userId ${sk?.userId}`);
+    // });
+    // switch(req.body.role){
+
+    // }
     const payload = {
-      userId: existingUser._id,
-      role: existingUser.role
+      userId: existingAccount._id,
+      role: req.body.role,
     };
-    const accessToken = jwt.sign(
-      payload, process.env.JWT_SECRET_KEY,
-      {
-        expiresIn: "1hr",
-      }
-    );
-    const refreshToken = jwt.sign(
-      payload,
-      process.env.JWT_SECRET_KEY,
-      {
-        expiresIn: "1w",
-      }
-    );
-    const { createdAt, updatedAt, password, ...filterdUser } =
-      existingUser._doc;
+    const accessToken = jwt.sign(payload, process.env.JWT_SECRET_KEY, {
+      expiresIn: "1hr",
+    });
+    const refreshToken = jwt.sign(payload, process.env.JWT_SECRET_KEY, {
+      expiresIn: "1w",
+    });
     res.cookie("accessToken", accessToken, {
       httpOnly: true,
       path: "/",
@@ -166,7 +156,7 @@ const login = async (req, res) => {
     });
     return res
       .status(200)
-      .json({ message: "Login successfully! Welcome back", data: filterdUser });
+      .json({ message: "Login successfully! Welcome back", data: existingAccount });
   } catch (error) {
     return res.status(500).json({ error: error.message });
   }
@@ -192,22 +182,14 @@ const mobileLogin = async (req, res) => {
     }
     const payload = {
       userId: existingUser._id,
-      role: existingUser.role
+      role: existingUser.role,
     };
-    const accessToken = jwt.sign(
-      payload,
-      process.env.JWT_SECRET_KEY,
-      {
-        expiresIn: "1hr",
-      }
-    );
-    const refreshToken = jwt.sign(
-      payload,
-      process.env.JWT_SECRET_KEY,
-      {
-        expiresIn: "1w",
-      }
-    );
+    const accessToken = jwt.sign(payload, process.env.JWT_SECRET_KEY, {
+      expiresIn: "1hr",
+    });
+    const refreshToken = jwt.sign(payload, process.env.JWT_SECRET_KEY, {
+      expiresIn: "1w",
+    });
     const { createdAt, updatedAt, password, ...filteredUser } =
       existingUser._doc;
     res.setHeader("accessToken", accessToken);
@@ -248,15 +230,11 @@ const refreshToken = async (req, res) => {
       existingUser._doc;
     const payload = {
       userId: existingUser._id,
-      role: existingUser.role
+      role: existingUser.role,
     };
-    const accessToken = jwt.sign(
-      payload,
-      process.env.JWT_SECRET_KEY,
-      {
-        expiresIn: "1hr",
-      }
-    );
+    const accessToken = jwt.sign(payload, process.env.JWT_SECRET_KEY, {
+      expiresIn: "1hr",
+    });
     res.cookie("accessToken", accessToken, {
       httpOnly: true,
       path: "/",
@@ -426,7 +404,6 @@ const generateRandomPassword = () => {
   return newPassword;
 };
 
-
 const getArtistInfo = async (req, res) => {
   try {
     const userId = req.params.userId;
@@ -436,22 +413,16 @@ const getArtistInfo = async (req, res) => {
     }
     const payload = {
       userId: existingUser._id,
-      role: existingUser.role
+      role: existingUser.role,
     };
-    const accessToken = jwt.sign(
-      payload, process.env.JWT_SECRET_KEY,
-      {
-        expiresIn: "1hr",
-      }
-    );
-    const refreshToken = jwt.sign(
-      payload,
-      process.env.JWT_SECRET_KEY,
-      {
-        expiresIn: "1w",
-      }
-    );
-    const { createdAt, updatedAt, password, ...filterdUser } = existingUser._doc;
+    const accessToken = jwt.sign(payload, process.env.JWT_SECRET_KEY, {
+      expiresIn: "1hr",
+    });
+    const refreshToken = jwt.sign(payload, process.env.JWT_SECRET_KEY, {
+      expiresIn: "1w",
+    });
+    const { createdAt, updatedAt, password, ...filterdUser } =
+      existingUser._doc;
     res.cookie("accessToken", accessToken, {
       httpOnly: true,
       path: "/",
