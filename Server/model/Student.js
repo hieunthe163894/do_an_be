@@ -1,5 +1,5 @@
 import mongoose, { model, Schema } from "mongoose";
-
+import Account from "./Account.js";
 const StudentSchema = new Schema(
   {
     name: {
