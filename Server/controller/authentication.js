@@ -7,9 +7,10 @@ import dotenv from "dotenv";
 import jwt from "jsonwebtoken";
 import { sendConfirmEmail } from "../utils/mailTransport.js";
 import jwksClient from "jwks-rsa";
-import User from "../model/RegisteredUser.js";
 import emailTemplate from "../utils/emailTemplate.js";
 import { io } from "../index.js";
+import { ROLE_NAME } from "../utils/const.js";
+import { StudentRepository } from "../repository/index.js";
 const client = jwksClient({
   jwksUri: "https://www.googleapis.com/oauth2/v3/certs",
   requestHeaders: {
@@ -21,11 +22,9 @@ const client = jwksClient({
 const getKey = async (header, callback) => {
   try {
     const key = await client.getSigningKey(header.kid);
-    console.log(key);
     const signingKey = key.getPublicKey();
     callback(null, signingKey);
   } catch (error) {
-    console.log(error);
     callback(error);
   }
 };
@@ -81,11 +80,8 @@ const verifyUser = async (req, res) => {
   try {
     const token = req.params.token;
     const decodedToken = jwt.verify(token, process.env.JWT_SECRET_KEY);
-    console.log(decodedToken);
     const { userId } = decodedToken;
-
     const result = await AuthenticateRepository.verifyUser(userId);
-    console.log(result);
     return res
       .status(200)
       .json({ data: "The user was successfully verified!! Now redirecting" });
@@ -101,6 +97,7 @@ const verifyUser = async (req, res) => {
 };
 const login = async (req, res) => {
   try {
+    const role = req.body.role;
     const existingAccount = await AccountRepository.findAccountByEmail(
       req.body.email
     );
@@ -114,25 +111,49 @@ const login = async (req, res) => {
     if (!passwordMatch) {
       return res.status(400).json({ error: "Bad Credential" });
     }
+    let userDetail = {};
+    switch (role) {
+      case ROLE_NAME.student:
+        const student = await StudentRepository.findStudentByAccountId(
+          existingAccount._id
+        );  
+        if (!student) {
+          return res
+            .status(404)
+            .json({
+              error: "No such student found matched with provided credential",
+            });
+        }
+        userDetail = student;
+        userDetail.role = ROLE_NAME.student;
+        break;
+      case ROLE_NAME.teacher:
+        return res.status(404).json({ error: "Unimplemented" });
+      case ROLE_NAME.startUpDepartment:
+        return res.status(404).json({ error: "Unimplemented" });
+      case ROLE_NAME.admin:
+        return res.status(404).json({ error: "Unimplemented" });
+      default:
+        return res.status(500).json({ error: "Bad request" });
+    }
     // if (!existingAccount.verify) {
     //   return res.status(400).json({ error: "The account is not verified!" });
     // }
-    // const socket = io.sockets.sockets.get(req.body.socketId);
-    // if (socket) {
-    //   socket.userId = existingUser._id.toString();
-    //   console.log("user socket has been asigned with userId");
-    // } else {
-    //   console.log("something went wrong");
-    // }
+    const socket = io.sockets.sockets.get(req.body.socketId);
+    if (socket) {
+      socket.accountId = existingAccount._id.toString();
+    } else {
+      console.log("No socket");
+    }
     // io.sockets.sockets.forEach((sk) => {
-    //   console.log(`socket ${sk.id} userId ${sk?.userId}`);
+    //   console.log(`socket ${sk.id} account ${sk?.accountId}`);
     // });
-    // switch(req.body.role){
-
-    // }
     const payload = {
-      userId: existingAccount._id,
-      role: req.body.role,
+      account: existingAccount._id,
+      role: {
+        id: userDetail._id,
+        role: userDetail.role,
+      },
     };
     const accessToken = jwt.sign(payload, process.env.JWT_SECRET_KEY, {
       expiresIn: "1hr",
@@ -156,14 +177,13 @@ const login = async (req, res) => {
     });
     return res
       .status(200)
-      .json({ message: "Login successfully! Welcome back", data: existingAccount });
+      .json({ message: "Login successfully! Welcome back", data: userDetail });
   } catch (error) {
     return res.status(500).json({ error: error.message });
   }
 };
 const mobileLogin = async (req, res) => {
   try {
-    console.log(req.body);
     const existingUser = await AuthenticateRepository.getUserByEmail(
       req.body.email
     );
@@ -375,7 +395,6 @@ const sendResetLink = async (req, res) => {
     const { email } = req.body;
     const user = await AuthenticateRepository.findByEmail(email);
     if (!user) {
-      console.log("Not have email!");
       return res.status(400).json({ error: "Email not found" });
     }
     const newPassword = generateRandomPassword();

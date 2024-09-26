@@ -1,4 +1,4 @@
-import mongoose, { Schema } from "mongoose";
+import mongoose, { model, Schema } from "mongoose";
 
 const StudentSchema = new Schema(
   {
@@ -32,7 +32,6 @@ const StudentSchema = new Schema(
     classId: {
       type: Schema.Types.ObjectId,
       ref: 'Class', 
-      required: true,
     },
   },
   { timestamps: true, collection: 'Students' }
