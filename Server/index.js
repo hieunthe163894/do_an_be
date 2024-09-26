@@ -8,6 +8,15 @@ import {
   UserRouter,
   AuthenticationRouter,
   VnPayRouter,
+  StudentRouter,
+  ClassRouter,
+  ClassworkRouter,
+  GroupRouter,
+  MentorRouter,
+  TeacherRouter,
+  SubmissionRouter,
+  TaskRouter,
+  TimeBlockRouter,
 } from "./routes/index.js";
 import "./utils/google-oauth2.js";
 import path from "path";
@@ -56,7 +65,15 @@ app.get("/hello", (req, res) => {
 app.use("/api/auth", AuthenticationRouter);
 app.use("/api/user", UserRouter);
 app.use("/api/payment", VnPayRouter);
-
+app.use("/api/student", StudentRouter);
+app.use("/api/class", ClassRouter);
+app.use("/api/classwork", ClassworkRouter);
+app.use("/api/group", GroupRouter);
+app.use("/api/mentor", MentorRouter);
+app.use("/api/teacher", TeacherRouter);
+app.use("/api/submission", SubmissionRouter);
+app.use("/api/task", TaskRouter);
+app.use("/api/timeblock", TimeBlockRouter);
 const port = process.env.PORT || 9999;
 const MONGODB_URI = process.env.MONGODB_URI;
 eventScheduler();
