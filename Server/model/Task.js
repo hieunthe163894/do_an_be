@@ -11,38 +11,49 @@ const TaskSchema = new Schema(
       required: true,
     },
     attachment: {
-      type: String, 
-      required: false, 
+      type: String,
+      required: false,
     },
     status: {
       type: String,
-      enum: ['pending', 'in progress', 'done'],
-      default: 'pending', 
+      enum: ["pending", "in progress", "done"],
+      default: "pending",
       required: true,
     },
     assignee: {
       type: Schema.Types.ObjectId,
-      ref: 'User', 
+      ref: "User",
       required: true,
     },
     createdBy: {
       type: Schema.Types.ObjectId,
-      ref: 'User', 
+      ref: "User",
       required: true,
     },
     classwork: {
       type: Schema.Types.ObjectId,
-      ref: 'Classwork', 
+      ref: "Classwork",
       required: true,
     },
     timeblock: {
       type: Schema.Types.ObjectId,
-      ref: 'Timeblock', 
+      ref: "Timeblock",
       required: true,
     },
+    dueDate: {
+      type: Date,
+    },
+    parentTask: {
+      type: Schema.Types.ObjectId,
+      ref: "Task" 
+    },
+    childTasks: {
+      type: Schema.Types.ObjectId,
+      ref: "Task" 
+    }
   },
-  { timestamps: true, collection: 'Tasks' }
+  { timestamps: true, collection: "Tasks" }
 );
 
-const Task = mongoose.model('Task', TaskSchema);
+const Task = mongoose.model("Task", TaskSchema);
 export default Task;
