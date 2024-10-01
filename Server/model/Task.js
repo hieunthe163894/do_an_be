@@ -1,7 +1,13 @@
 import mongoose, { Schema } from "mongoose";
-
+import Student from "./Student.js";
+import TimeBlock from "./TimeBlock.js";
 const TaskSchema = new Schema(
   {
+    taskType:{
+      type: String,
+      required: true,
+      enum: ["class work", "group task"]
+    },
     taskName: {
       type: String,
       required: true,
@@ -22,12 +28,12 @@ const TaskSchema = new Schema(
     },
     assignee: {
       type: Schema.Types.ObjectId,
-      ref: "User",
+      ref: "Student",
       required: true,
     },
     createdBy: {
       type: Schema.Types.ObjectId,
-      ref: "User",
+      ref: "Student",
       required: true,
     },
     classwork: {
@@ -37,7 +43,7 @@ const TaskSchema = new Schema(
     },
     timeblock: {
       type: Schema.Types.ObjectId,
-      ref: "Timeblock",
+      ref: "TimeBlock",
       required: true,
     },
     dueDate: {
@@ -47,10 +53,10 @@ const TaskSchema = new Schema(
       type: Schema.Types.ObjectId,
       ref: "Task" 
     },
-    childTasks: {
+    childTasks: [{
       type: Schema.Types.ObjectId,
       ref: "Task" 
-    }
+    }]
   },
   { timestamps: true, collection: "Tasks" }
 );
