@@ -1,5 +1,4 @@
-import Group from "../model/Group.js";
-import { GroupRepository, StudentRepository } from "../repository/index.js";
+import { GroupRepository } from "../repository/index.js";
 const createJourneyRow = async (req, res) => {
   try {
     const { rowName } = req.body;
@@ -61,21 +60,110 @@ const createJourneyCol = async (req, res) => {
 const findGroupById = async (req, res) => {
   try {
     const groupId = req.params.groupId;
-    const existingGroup = await Group.findById(groupId);
+    if (!groupId) {
+      return res.status(400).json({ error: "Bad request" });
+    }
+    const existingGroup = await GroupRepository.findGroupById({ groupId });
     if (!existingGroup) {
       return res.status(400).json({ error: "Group not found!" });
     }
-    return res.status(200).json({ data: findGroupById });
-  } catch (error) {}
+    return res.status(200).json({ data: existingGroup });
+  } catch (error) {
+    return res.status(500).json({ error: error.message });
+  }
 };
-// const updateCellContent = async (req, res) =>{
-//   try {
-//     const 
-//   } catch (error) {
-    
-//   }
-// }
+const deleteRow = async (req, res) => {
+  try {
+    const { rowId } = req.body;
+    const updatedGroup = await GroupRepository.deleteRow({
+      rowId,
+      groupId: req.groupId,
+    });
+    return res.status(200).json({ data: updatedGroup });
+  } catch (error) {
+    return res.status(500).json({ error: error.message });
+  }
+};
+const deleteCol = async (req, res) => {
+  try {
+    const { colId } = req.body;
+    const updatedGroup = await GroupRepository.deleteCol({
+      colId,
+      groupId: req.groupId,
+    });
+    return res.status(200).json({ data: updatedGroup });
+  } catch (error) {
+    return res.status(500).json({ error: error.message });
+  }
+};
+const updateCellContent = async (req, res) => {
+  try {
+    const { cellId, content } = req.body;
+    const updatedGroup = await GroupRepository.updateCellContent({
+      cellId,
+      content,
+      groupId: req.groupId,
+    });
+    return res.status(200).json({ data: updatedGroup });
+  } catch (error) {
+    return res.status(500).json({ error: error.message });
+  }
+};
+const updateColumn = async (req, res) => {
+  try {
+    const { name, colId, color } = req.body;
+    if (name.trim().length === 0) {
+      return res.status(400).json({ error: "Invalid column name" });
+    }
+    const updatedGroup = await GroupRepository.updateColumn({
+      colId,
+      name,
+      color,
+      groupId: req.groupId,
+    });
+    return res.status(200).json({ data: updatedGroup });
+  } catch (error) {
+    return res.status(500).json({ error: error.message });
+  }
+};
+const updateRow = async (req, res) => {
+  try {
+    const { name, rowId } = req.body;
+    if (name.trim().length === 0) {
+      return res.status(400).json({ error: "Invalid row name" });
+    }
+    const updatedGroup = await GroupRepository.updateRow({
+      rowId,
+      name,
+      groupId: req.groupId,
+    });
+    return res.status(200).json({ data: updatedGroup });
+  } catch (error) {
+    return res.status(500).json({ error: error.message });
+  }
+};
+const updateCanvasCell = async (req, res) => {
+  try {
+    const { name, color, content } = req.body;
+    const updatedGroup = await GroupRepository.updateCanvasCell({
+      color,
+      content,
+      name,
+      groupId: req.groupId,
+    });
+    return res.status(200).json({ data: updatedGroup });
+  } catch (error) {
+    return res.status(500).json({ error: error.message });
+  }
+};
 export default {
   createJourneyRow,
-  createJourneyCol
+  createJourneyCol,
+  findGroupById,
+  deleteRow,
+  deleteCol,
+  updateCellContent,
+  updateColumn,
+  updateRow,
+  updateCanvasCell,
 };

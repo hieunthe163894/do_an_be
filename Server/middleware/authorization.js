@@ -30,10 +30,8 @@ const checkGroupAccess = async (req, res, next) => {
               "Unauthorized ! The student is not assigned to any active group",
           });
         }
-        //the group id of the url and the group id of the student account don' t match
-        console.log();
-        
-        if (req.params.groupId !== groupOfStudent._id.toString()) {
+        //the group id of the url and the group id of the student account don' t match        
+        if (req.query.groupId !== groupOfStudent._id.toString()) {
           return res.status(403).json({ error: "Unauthorized !" });
         }
         req.groupId = groupOfStudent._id;

@@ -48,6 +48,20 @@ const CustomerJourneyMapSchema = new Schema({
     default: [],
   },
 });
+const CanvasCellsSchema = new Schema({
+  color: {
+    type: String,
+    default: "#fb7185",
+  },
+  name: {
+    type: String,
+    default: "default name",
+  },
+  content: {
+    type: String,
+    default: "default content",
+  },
+});
 const GroupSchema = new Schema(
   {
     GroupName: {
@@ -72,19 +86,63 @@ const GroupSchema = new Schema(
       type: CustomerJourneyMapSchema,
       default: {},
     },
-    BusinessModalCanvas: {
+    businessModelCanvas: {
       show: {
         type: Boolean,
         default: true,
       },
-      section: {
-        name: { type: String, required: true },
-        color: { type: String, required: true },
-        content: { type: String, required: true },
-        icon: { type: String, required: false },
+      sections: {
+        type: [CanvasCellsSchema],
+        default: [
+          {
+            color: "#93c5fd",
+            name: "Key Partner",
+            content: "",
+          },
+          {
+            color: "#93c5fd",
+            name: "Key Activities",
+            content: "",
+          },
+          {
+            color: "#fca5a5",
+            name: "Value Proposition",
+            content: "",
+          },
+          {
+            color: "#93c5fd",
+            name: "Key Resource",
+            content: "",
+          },
+          {
+            color: "#fcd34d",
+            name: "Customer Relationships",
+            content: "",
+          },
+          {
+            color: "#fcd34d",
+            name: "Customer Segments",
+            content: "",
+          },
+          {
+            color: "#fcd34d",
+            name: "Channels",
+            content: "",
+          },
+          {
+            color: "#93c5fd",
+            name: "Cost",
+            content: "",
+          },
+          {
+            color: "#86efac",
+            name: "Revenue Streams",
+            content: "",
+          },
+        ],
       },
     },
-    CustomerPersonas: [
+    customerPersonas: [
       {
         avatar: { type: String, required: true },
         name: { type: String, required: true },
