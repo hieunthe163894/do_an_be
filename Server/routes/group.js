@@ -55,14 +55,15 @@ groupRouter.patch(
 groupRouter.get(
   "/:groupId",
   verifyToken,
-  // authorization.checkGroupAccess,
+  authorization.checkGroupAccess,
   GroupController.findGroupById
 );
 
 groupRouter.get(
   "/customerJourneyMap/:groupId",
   verifyToken,
-  authorization.checkGroupAccess,
+  // authorization.checkGroupAccess,
   GroupController.findGroupById
 );
 export default groupRouter;
+
