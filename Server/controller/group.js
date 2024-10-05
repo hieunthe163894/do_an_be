@@ -14,7 +14,7 @@ const createJourneyRow = async (req, res) => {
       name: rowName,
     });
     const newCells = existingGroup.customerJourneyMap.cols.map((column) => ({
-      row: newRow._id, // Ensure you are returning an object
+      row: newRow._id,
       col: column._id,
     }));
     const updatedGroup = await GroupRepository.createCellsOnUpdate({

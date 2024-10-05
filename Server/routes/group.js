@@ -58,4 +58,11 @@ groupRouter.get(
   // authorization.checkGroupAccess,
   GroupController.findGroupById
 );
+
+groupRouter.get(
+  "/customerJourneyMap/:groupId",
+  verifyToken,
+  authorization.checkGroupAccess,
+  GroupController.findGroupById
+);
 export default groupRouter;
