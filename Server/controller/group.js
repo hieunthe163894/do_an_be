@@ -30,7 +30,7 @@ const createJourneyRow = async (req, res) => {
 };
 const createJourneyCol = async (req, res) => {
   try {
-    const { colName } = req.body;
+    const { colName, color } = req.body;
     const existingGroup = await GroupRepository.findGroupById({
       groupId: req.groupId,
     });
@@ -41,6 +41,7 @@ const createJourneyCol = async (req, res) => {
     const newCol = await GroupRepository.createJourneyCol({
       groupId: existingGroup._id,
       name: colName,
+      color,
     });
     const newCells = existingGroup.customerJourneyMap.rows.map((row) => ({
       row: row._id,
@@ -74,7 +75,7 @@ const findGroupById = async (req, res) => {
 };
 const deleteRow = async (req, res) => {
   try {
-    const { rowId } = req.body;
+    const { rowId } = req.query;
     const updatedGroup = await GroupRepository.deleteRow({
       rowId,
       groupId: req.groupId,
@@ -86,7 +87,7 @@ const deleteRow = async (req, res) => {
 };
 const deleteCol = async (req, res) => {
   try {
-    const { colId } = req.body;
+    const { colId } = req.query;
     const updatedGroup = await GroupRepository.deleteCol({
       colId,
       groupId: req.groupId,
