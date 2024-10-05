@@ -1,5 +1,5 @@
-import mongoose, { Schema } from "mongoose";
-
+import mongoose, { model, Schema } from "mongoose";
+import Account from "./Account.js";
 const StudentSchema = new Schema(
   {
     name: {
@@ -32,7 +32,6 @@ const StudentSchema = new Schema(
     classId: {
       type: Schema.Types.ObjectId,
       ref: 'Class', 
-      required: true,
     },
   },
   { timestamps: true, collection: 'Students' }
