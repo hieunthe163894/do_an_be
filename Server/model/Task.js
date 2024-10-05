@@ -34,8 +34,13 @@ const TaskSchema = new Schema(
     createdBy: {
       type: Schema.Types.ObjectId,
       ref: "Student",
-      required: true,
+      // required: true,
     },
+    // group:{
+    //   type: Schema.Types.ObjectId,
+    //   ref: "Group",
+    //   // required: true,
+    // },
     classwork: {
       type: Schema.Types.ObjectId,
       ref: "Classwork",

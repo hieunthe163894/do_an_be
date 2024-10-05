@@ -98,6 +98,8 @@ const verifyUser = async (req, res) => {
 const login = async (req, res) => {
   try {
     const role = req.body.role;
+    console.log(req.body);
+    
     const existingAccount = await AccountRepository.findAccountByEmail(
       req.body.email
     );
