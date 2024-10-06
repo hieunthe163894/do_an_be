@@ -67,7 +67,7 @@ export const viewTaskDetail = async (req, res) => {
       return res.status(400).json({ message: "Task ID is required" });
     }
     const taskDetail = await TaskRepository.viewTaskDetail(taskId);
-    return res.status(200).json(taskDetail);
+    return res.status(200).json({data:taskDetail});
   } catch (error) {
     return res.status(500).json({ message: error.message });
   }
@@ -93,8 +93,7 @@ export const updateTask = async (req, res) => {
 export const getTasksByGroup = async (req, res) => {
   try {
     const { groupId } = req.params;
-    console.log(groupId);
-    
+
     if (!groupId) {
       return res.status(400).json({ message: "Group ID is required" });
     }
@@ -102,7 +101,7 @@ export const getTasksByGroup = async (req, res) => {
     if (!tasks || tasks.length === 0) {
       return res.status(404).json({ message: "No tasks found for the group" });
     }
-    return res.status(200).json(tasks);
+    return res.status(200).json({data:tasks});
   } catch (error) {
     return res.status(500).json({ message: 'Error fetch', error: error.message });
   }

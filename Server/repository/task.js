@@ -156,10 +156,14 @@ export const updatedTask = async (taskId, updateData) => {
 export const viewListTaskInGroup = async (groupId) => {
   try {
     const studentsInGroup = await Student.find({ group: groupId }).select('_id').lean();
+    console.log(studentsInGroup);
+    
     if (studentsInGroup.length === 0) {
       throw new Error('No students found in this group');
     }
     const studentIds = studentsInGroup.map(student => student._id);
+    console.log(studentIds);
+    
     const tasks = await Task.find({ createdBy: { $in: studentIds } })
       .populate({
         path: 'assignee',
@@ -170,12 +174,8 @@ export const viewListTaskInGroup = async (groupId) => {
         }
       })
       .populate({
-        path: 'timeblock',
-        select: 'name',
-      })
-      .populate({
-        path: 'parentTask',
-        select: '_id taskName'
+        path: 'childTasks',
+        select: '_id taskName dueDate assignee'
       })
       .populate({
         path: 'childTasks',
