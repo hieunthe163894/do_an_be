@@ -35,6 +35,8 @@ const checkGroupAccess = async (req, res, next) => {
           return res.status(403).json({ error: "Unauthorized !" });
         }
         req.groupId = groupOfStudent._id;
+        req.studentId = student._id.toString();
+        req.classId = student.classId.toString();        
         break;
 
       default:

@@ -157,6 +157,50 @@ const updateCanvasCell = async (req, res) => {
     return res.status(500).json({ error: error.message });
   }
 };
+
+const addCustomerPersona = async (req, res) => {
+  try {
+    const { detail, bio, needs } = req.body;
+    const newPersona = { detail, bio, needs };
+    const updatedGroup = await GroupRepository.addCustomerPersona({
+      groupId: req.groupId,
+      newPersona,
+    });
+    return res.status(200).json({ data: updatedGroup });
+  } catch (error) {
+    return res.status(500).json({ error: error.message });
+  }
+};
+
+const updateCustomerPersona = async (req, res) => {
+  try {
+    const { personaId } = req.query;
+    const { detail, bio, needs } = req.body;
+    const updatedPersona = { detail, bio, needs };
+    const updatedGroup = await GroupRepository.updateCustomerPersona({
+      groupId: req.groupId,
+      personaId,
+      updatedPersona,
+    });
+    return res.status(200).json({ data: updatedGroup });
+  } catch (error) {
+    return res.status(500).json({ error: error.message });
+  }
+};
+
+const deleteCustomerPersona = async (req, res) => {
+  try {
+    const { groupId, personaId } = req.query;
+    const updatedGroup = await GroupRepository.deleteCustomerPersona({
+      groupId,
+      personaId,
+    });
+    return res.status(200).json({ data: updatedGroup });
+  } catch (error) {
+    return res.status(500).json({ error: error.message });
+  }
+}
+
 export default {
   createJourneyRow,
   createJourneyCol,
@@ -167,4 +211,7 @@ export default {
   updateColumn,
   updateRow,
   updateCanvasCell,
+  addCustomerPersona,
+  updateCustomerPersona,
+  deleteCustomerPersona
 };
