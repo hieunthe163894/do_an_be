@@ -7,7 +7,7 @@ taskRouter.post('/create',verifyToken, TaskController.createTask);
 taskRouter.get('/getAllTasks', TaskController.getAllTasks);
 taskRouter.get('/:taskId', TaskController.viewTaskDetail);
 taskRouter.put('/:taskId',verifyToken, TaskController.updateTask);
-taskRouter.get('/viewTaskByGroup/:groupId', TaskController.getTasksByGroup);
+taskRouter.get('/viewTaskByGroup',verifyToken, TaskController.getTasksByGroup);
 
 export default taskRouter;
 

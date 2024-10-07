@@ -156,14 +156,14 @@ export const updatedTask = async (taskId, updateData) => {
 export const viewListTaskInGroup = async (groupId) => {
   try {
     const studentsInGroup = await Student.find({ group: groupId }).select('_id').lean();
-    console.log(studentsInGroup);
     
     if (studentsInGroup.length === 0) {
       throw new Error('No students found in this group');
     }
-    const studentIds = studentsInGroup.map(student => student._id);
-    console.log(studentIds);
     
+    const studentIds = studentsInGroup.map(student => student._id);
+    
+    // Fetch tasks assigned to students in the current group
     const tasks = await Task.find({ createdBy: { $in: studentIds } })
       .populate({
         path: 'assignee',
@@ -177,11 +177,9 @@ export const viewListTaskInGroup = async (groupId) => {
         path: 'childTasks',
         select: '_id taskName dueDate assignee'
       })
-      .populate({
-        path: 'childTasks',
-        select: '_id taskName'
-      })
       .lean();
+
+    // Adjust task format
     tasks.forEach(task => {
       if (task.assignee && task.assignee.account) {
         task.assignee.profilePicture = task.assignee.account.profilePicture;
