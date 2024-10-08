@@ -13,7 +13,7 @@ const createTask = async (req, res) => {
     if (!student) {
       return res.status(403).json({ error: "Unauthorized" });
     }
-    if (!taskName || !description || !assignee || !classwork || !timeblock) {
+    if (!taskName || !assignee ) {
       return res.status(400).json({ message: 'Missing required fields' });
     }
     const taskData = {
@@ -21,7 +21,7 @@ const createTask = async (req, res) => {
       taskName,
       description,
       attachment : '',
-      status: status || 'pending',
+      status: status || 'Pending',
       assignee,
       group:student.group._id,
       createdBy: student._id,
