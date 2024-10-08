@@ -5,66 +5,14 @@ import TimeBlock from '../model/TimeBlock.js';
 import Student from '../model/Student.js';
 
 
-const createTask = async ({ taskType, taskName, createdBy, description, attachment, status, assignee, classwork, timeblock, dueDate, parentTask, childTasks }) => {
+const createTask = async ({ taskType,group, taskName, createdBy, description, attachment, status, assignee, classwork, timeblock, dueDate, parentTask, childTasks }) => {
   try {
     const result = await Task.create({
-      taskType, taskName, description, attachment, status, createdBy, assignee, classwork, timeblock, dueDate, parentTask, childTasks
+      taskType, taskName, description,group, attachment, status, createdBy, assignee, classwork, timeblock, dueDate, parentTask, childTasks
     });
     return result._doc;
   } catch (error) {
     throw new Error(error.message);
-  }
-};
-
-export const getAllTasks = async (filters) => {
-  try {
-    const query = {};
-    if (filters.taskType) {
-      query.taskType = filters.taskType;
-    }
-
-    if (filters.assignee) {
-      query.assignee = filters.assignee;
-    }
-
-    if (filters.status) {
-      query.status = filters.status;
-    }
-    if (filters.search) {
-      query.taskName = { $regex: filters.search, $options: "i" };
-    }
-    const tasks = await Task.find(query)
-      .populate({
-        path: 'assignee',
-        select: 'name',
-        populate: {
-          path: 'account',
-          select: 'profilePicture -_id',
-        }
-      })
-      .populate({
-        path: 'timeblock',
-        select: 'name',
-      })
-      .populate({
-        path: 'parentTask',
-        select: '_id taskName'
-      })
-      .populate({
-        path: 'childTasks',
-        select: '_id taskName'
-      })
-      .lean();
-    tasks.forEach(task => {
-      if (task.assignee && task.assignee.account) {
-        task.assignee.profilePicture = task.assignee.account.profilePicture;
-        delete task.assignee.account;
-      }
-    });
-
-    return tasks;
-  } catch (error) {
-    throw new Error('Error fetching tasks: ' + error.message);
   }
 };
 
@@ -153,7 +101,7 @@ export const updatedTask = async (taskId, updateData) => {
 };
 
 
-export const viewListTaskInGroup = async (groupId) => {
+export const viewListTaskInGroup = async (groupId, filters) => {
   try {
     const studentsInGroup = await Student.find({ group: groupId }).select('_id').lean();
     
@@ -162,9 +110,32 @@ export const viewListTaskInGroup = async (groupId) => {
     }
     
     const studentIds = studentsInGroup.map(student => student._id);
-    
-    // Fetch tasks assigned to students in the current group
-    const tasks = await Task.find({ createdBy: { $in: studentIds } })
+
+    const query = {
+      createdBy: { $in: studentIds }
+    };
+
+    // Enable partial matching for taskType
+    if (filters.taskType) {
+      query.taskType = { $regex: filters.taskType, $options: "i" }; // Case-insensitive search
+    }
+
+    // Enable partial matching for assignee
+    if (filters.assignee) {
+      query.assignee = { $regex: filters.assignee, $options: "i" }; // Case-insensitive search
+    }
+
+    // Enable partial matching for status
+    if (filters.status) {
+      query.status = { $regex: filters.status, $options: "i" }; // Case-insensitive search
+    }
+
+    // Enable partial matching for search
+    if (filters.search) {
+      query.taskName = { $regex: filters.search, $options: "i" }; // Case-insensitive search
+    }
+
+    const tasks = await Task.find(query)
       .populate({
         path: 'assignee',
         select: 'name',
@@ -179,7 +150,6 @@ export const viewListTaskInGroup = async (groupId) => {
       })
       .lean();
 
-    // Adjust task format
     tasks.forEach(task => {
       if (task.assignee && task.assignee.account) {
         task.assignee.profilePicture = task.assignee.account.profilePicture;
@@ -194,7 +164,6 @@ export const viewListTaskInGroup = async (groupId) => {
 };
 export default {
   createTask,
-  getAllTasks,
   viewTaskDetail,
   updatedTask,
   viewListTaskInGroup

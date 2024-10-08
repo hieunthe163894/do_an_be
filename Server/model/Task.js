@@ -36,15 +36,15 @@ const TaskSchema = new Schema(
       ref: "Student",
       // required: true,
     },
-    // group:{
-    //   type: Schema.Types.ObjectId,
-    //   ref: "Group",
-    //   // required: true,
-    // },
+    group:{
+      type: Schema.Types.ObjectId,
+      ref: "Group",
+      // required: true,
+    },
     classwork: {
       type: Schema.Types.ObjectId,
       ref: "Classwork",
-      required: true,
+      // required: true,
     },
     timeblock: {
       type: Schema.Types.ObjectId,

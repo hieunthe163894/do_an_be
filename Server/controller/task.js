@@ -8,7 +8,7 @@ import { TaskRepository, StudentRepository } from "../repository/index.js";
 const createTask = async (req, res) => {
   try {
     const decodedToken = req.decodedToken;
-    const { taskType, taskName, description, attachment, status, assignee, classwork, timeblock, dueDate, parentTask, childTasks } = req.body;
+    const { taskType, taskName,group, description, attachment, status, assignee, classwork, timeblock, dueDate, parentTask, childTasks } = req.body;
     const student = await StudentRepository.findStudentByAccountId(decodedToken.account);
     if (!student) {
       return res.status(403).json({ error: "Unauthorized" });
@@ -23,6 +23,7 @@ const createTask = async (req, res) => {
       attachment : '',
       status: status || 'pending',
       assignee,
+      group:student.group._id,
       createdBy: student._id,
       classwork,
       timeblock,
@@ -42,23 +43,6 @@ const createTask = async (req, res) => {
   }
 };
 
-export const getAllTasks = async (req, res) => {
-  try {
-    const { taskType, assignee, status, search } = req.query;
-
-    const filters = {
-      taskType,
-      assignee,
-      status,
-      search
-    };
-
-    const tasks = await TaskRepository.getAllTasks(filters);
-    return res.status(200).json(tasks);
-  } catch (error) {
-    return res.status(500).json({ message: error.message });
-  }
-};
 
 export const viewTaskDetail = async (req, res) => {
   try {
@@ -90,25 +74,21 @@ export const updateTask = async (req, res) => {
   }
 };
 
+
 export const getTasksByGroup = async (req, res) => {
   try {
-    const { groupId } = req.params;
+    const groupId = req.params.groupId; 
+    const filters = req.query; 
 
-    if (!groupId) {
-      return res.status(400).json({ message: "Group ID is required" });
-    }
-    const tasks = await TaskRepository.viewListTaskInGroup(groupId);
-    if (!tasks || tasks.length === 0) {
-      return res.status(404).json({ message: "No tasks found for the group" });
-    }
-    return res.status(200).json({data:tasks});
+    const tasks = await TaskRepository.viewListTaskInGroup(groupId, filters);
+    return res.status(200).json(tasks);
   } catch (error) {
-    return res.status(500).json({ message: 'Error fetch', error: error.message });
+    console.error('Error in getTasksByGroup:', error.message);
+    return res.status(500).json({ error: error.message });
   }
 };
 export default {
   createTask,
-  getAllTasks,
   viewTaskDetail,
   updateTask,
   getTasksByGroup

@@ -12,7 +12,7 @@ export const getStudentsInSameGroup = async (req, res) => {
       }
   
       const students = await StudentRepository.getStudentsByGroup(student.group._id);
-      return res.status(200).json(students);
+      return res.status(200).json({data:students});
     } catch (error) {
       return res.status(500).json({ message: error.message });
     }
