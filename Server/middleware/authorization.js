@@ -14,7 +14,7 @@ const checkRole = (role) => (req, res, next) => {
 };
 const checkGroupAccess = async (req, res, next) => {
   try {
-    const { account, role } = req.decodedToken;
+    const { account, role } = req.decodedToken;    
     switch (role.role) {
       case ROLE_NAME.student:
         const student = await StudentRepository.findStudentByAccountId(account);
@@ -35,8 +35,6 @@ const checkGroupAccess = async (req, res, next) => {
           return res.status(403).json({ error: "Unauthorized !" });
         }
         req.groupId = groupOfStudent._id;
-        req.studentId = student._id.toString();
-        req.classId = student.classId.toString();        
         break;
 
       default:
