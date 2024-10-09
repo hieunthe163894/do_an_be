@@ -5,7 +5,7 @@ const TaskSchema = new Schema(
   {
     taskType:{
       type: String,
-      required: true,
+      // required: true,
       enum: ["class work", "group task"]
     },
     taskName: {
@@ -14,17 +14,17 @@ const TaskSchema = new Schema(
     },
     description: {
       type: String,
-      required: true,
+      // required: true,
     },
     attachment: {
       type: String,
-      required: false,
+      // required: false,
     },
     status: {
       type: String,
-      enum: ["pending", "in progress", "done"],
-      default: "pending",
-      required: true,
+      enum: ["Pending", "In Progress", "Done"],
+      default: "Pending",
+      // required: true,
     },
     assignee: {
       type: Schema.Types.ObjectId,
@@ -34,17 +34,22 @@ const TaskSchema = new Schema(
     createdBy: {
       type: Schema.Types.ObjectId,
       ref: "Student",
-      required: true,
+      // required: true,
+    },
+    group:{
+      type: Schema.Types.ObjectId,
+      ref: "Group",
+      // required: true,
     },
     classwork: {
       type: Schema.Types.ObjectId,
       ref: "Classwork",
-      required: true,
+      // required: true,
     },
     timeblock: {
       type: Schema.Types.ObjectId,
       ref: "TimeBlock",
-      required: true,
+      // required: true,
     },
     dueDate: {
       type: Date,
