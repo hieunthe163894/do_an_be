@@ -17,7 +17,20 @@ const findStudentByGroupId = async (req, res) => {
     }
 };
 
-export const getStudentsInSameGroup = async (req, res) => {
+const getTeacherByStudentId = async (req, res) => {
+    try {
+        const decodedToken = req.decodedToken;
+        console.log(decodedToken);
+        
+        const userId = decodedToken.role.id
+        const student = await StudentRepository.getTeacherByStudentId(userId);
+        return res.status(201).json({ data: student });
+    } catch (error) {
+        return res.status(500).json({ error: error.message });
+    }
+}
+
+const getStudentsInSameGroup = async (req, res) => {
     try {
       const decodedToken = req.decodedToken;
       const student = await StudentRepository.findStudentByAccountId(decodedToken.account);
@@ -35,5 +48,6 @@ export const getStudentsInSameGroup = async (req, res) => {
 
 export default {
     getStudentsInSameGroup,
-    getStudentsInSameGroup
+    getTeacherByStudentId,
+    findStudentByGroupId
 }
