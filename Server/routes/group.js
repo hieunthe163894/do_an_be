@@ -58,4 +58,6 @@ groupRouter.get(
   // authorization.checkGroupAccess,
   GroupController.findGroupById
 );
+
 export default groupRouter;
+

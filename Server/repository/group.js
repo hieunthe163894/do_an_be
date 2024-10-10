@@ -25,7 +25,7 @@ const createJourneyRow = async ({ groupId, name }) => {
     return new Error(error.message);
   }
 };
-const createJourneyCol = async ({ groupId, name }) => {
+const createJourneyCol = async ({ groupId, name, color }) => {
   try {
     const updatedGroup = await Group.findByIdAndUpdate(
       groupId,
@@ -33,6 +33,7 @@ const createJourneyCol = async ({ groupId, name }) => {
         $push: {
           "customerJourneyMap.cols": {
             name: name,
+            color: color,
           },
         },
       },
@@ -178,9 +179,6 @@ const updateRow = async ({ rowId, name, groupId }) => {
     if (name) {
       updates["customerJourneyMap.cols.$.name"] = name;
     }
-    if (color) {
-      updates["customerJourneyMap.cols.$.color"] = color;
-    }
     const updatedGroup = await Group.findOneAndUpdate(
       {
         _id: groupId,
@@ -236,5 +234,5 @@ export default {
   updateCellContent,
   updateColumn,
   updateRow,
-  updateCanvasCell
+  updateCanvasCell,
 };
