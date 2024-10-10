@@ -11,24 +11,17 @@ const SubmissionSchema = new Schema(
       type: String,
       required: true,
     },
-    grade: [
+    grade:
       {
-        criteriaName: {
+        gradingCriteria: [{
           type: String,
-          required: true,
-        },
-        weight: {
-          type: Number,
-          required: true,
-          min: 0,
-          max: 100, 
-        },
+          required: false,
+        }],
         grade: {
           type: Number,
           required: true, 
         },
       },
-    ],
     group: {
       type: Schema.Types.ObjectId,
       ref: 'Group', 
