@@ -1,3 +1,4 @@
+import mongoose from 'mongoose';
 import Student from "../model/Student.js";
 import Class from "../model/Class.js";
 import Teacher from "../model/Teacher.js";
@@ -7,12 +8,33 @@ const findStudentByAccountId = async (accountId) => {
   try {
     const student = await Student.findOne({
       account: accountId,
-    }).populate('account','-password');
+    }).populate('account', '-password');
     return student;
   } catch (error) {
     throw new Error(error.message);
   }
 };
+
+const findStudentByGroupId = async (classId) => {
+  try {
+    const students = await Student.find({ classId: classId }).select('_id name studentId gen major group').populate('group', 'GroupName');
+    console.log(students);
+
+    const groupedStudents = students.reduce((acc, student) => {
+      const groupName = student.group.GroupName;
+      if (!acc[groupName]) {
+        acc[groupName] = [];
+      }
+      const { group, ...studentWithoutGroup } = student._doc;
+      acc[groupName].push(studentWithoutGroup);
+      return acc;
+    }, {});
+    return groupedStudents;
+  } catch (error) {
+    throw new Error(error.message);
+  }
+}
+
 const getTeacherByStudentId = async (userId) => {
   try {
     const user = await Student.findById(userId)
@@ -20,7 +42,7 @@ const getTeacherByStudentId = async (userId) => {
     const classDoc = await Class.findById(classId);
     const classCode = classDoc.classCode;
     console.log("Class Code:", classCode);
-    
+
     const teachers = await Teacher.find({
       'assignedClasses.classCode': classCode,
     }).populate({
@@ -28,7 +50,7 @@ const getTeacherByStudentId = async (userId) => {
       select: 'profilePicture'
     });
 
-    const mentors = await Mentor.find({ 
+    const mentors = await Mentor.find({
       'assignedClasses.classCode': classCode,
     });
 
@@ -44,10 +66,10 @@ const getTeacherByStudentId = async (userId) => {
         role: 'Mentor',
       })),
     ];
-  return combinedResults;
-} catch (error) {
-  throw new Error(error.message);
-}
+    return combinedResults;
+  } catch (error) {
+    throw new Error(error.message);
+  }
 }
 const getStudentsByGroup = async (groupId) => {
   try {
@@ -59,6 +81,8 @@ const getStudentsByGroup = async (groupId) => {
 };
 export default {
   findStudentByAccountId,
+  getStudentsByGroup,
   getTeacherByStudentId,
-  getStudentsByGroup
+  getStudentsByGroup,
+  findStudentByGroupId
 };

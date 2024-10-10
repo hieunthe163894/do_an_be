@@ -59,5 +59,25 @@ groupRouter.get(
   GroupController.findGroupById
 );
 
+groupRouter.post(
+  "/createCustomerPersona",
+  verifyToken,
+  authorization.checkGroupAccess,
+  GroupController.addCustomerPersona
+)
+
+groupRouter.patch(
+  "/updateCustomerPersona",
+  verifyToken,
+  authorization.checkGroupAccess,
+  GroupController.updateCustomerPersona
+)
+
+groupRouter.delete(
+  "/deleteCustomerPersona",
+  verifyToken,
+  authorization.checkGroupAccess,
+  GroupController.deleteCustomerPersona
+)
 export default groupRouter;
 
