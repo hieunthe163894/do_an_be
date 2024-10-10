@@ -14,7 +14,7 @@ const checkRole = (role) => (req, res, next) => {
 };
 const checkGroupAccess = async (req, res, next) => {
   try {
-    const { account, role } = req.decodedToken;
+    const { account, role } = req.decodedToken;    
     switch (role.role) {
       case ROLE_NAME.student:
         const student = await StudentRepository.findStudentByAccountId(account);

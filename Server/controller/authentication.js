@@ -201,8 +201,11 @@ const mobileLogin = async (req, res) => {
       return res.status(400).json({ error: "The account is not verified!" });
     }
     const payload = {
-      userId: existingUser._id,
-      role: existingUser.role,
+      account: existingAccount._id,
+      role: {
+        id: userDetail._id,
+        role: userDetail.role,
+      },
     };
     const accessToken = jwt.sign(payload, process.env.JWT_SECRET_KEY, {
       expiresIn: "1hr",
@@ -248,10 +251,13 @@ const refreshToken = async (req, res) => {
     );
     const { createdAt, updatedAt, password, ...filteredUser } =
       existingUser._doc;
-    const payload = {
-      userId: existingUser._id,
-      role: existingUser.role,
-    };
+      const payload = {
+        account: existingAccount._id,
+        role: {
+          id: userDetail._id,
+          role: userDetail.role,
+        },
+      };
     const accessToken = jwt.sign(payload, process.env.JWT_SECRET_KEY, {
       expiresIn: "1hr",
     });
@@ -423,44 +429,6 @@ const generateRandomPassword = () => {
   return newPassword;
 };
 
-const getArtistInfo = async (req, res) => {
-  try {
-    const userId = req.params.userId;
-    const existingUser = await AuthenticateRepository.getUserById(userId);
-    if (!existingUser) {
-      return res.status(400).json({ error: error });
-    }
-    const payload = {
-      userId: existingUser._id,
-      role: existingUser.role,
-    };
-    const accessToken = jwt.sign(payload, process.env.JWT_SECRET_KEY, {
-      expiresIn: "1hr",
-    });
-    const refreshToken = jwt.sign(payload, process.env.JWT_SECRET_KEY, {
-      expiresIn: "1w",
-    });
-    const { createdAt, updatedAt, password, ...filterdUser } =
-      existingUser._doc;
-    res.cookie("accessToken", accessToken, {
-      httpOnly: true,
-      path: "/",
-      expires: new Date(Date.now() + 60 * 60 * 1000),
-      sameSite: "lax",
-      secure: false,
-    });
-    res.cookie("refreshToken", refreshToken, {
-      httpOnly: true,
-      path: "/",
-      expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
-      sameSite: "lax",
-      secure: false,
-    });
-    return res.status(200).json({ data: filterdUser });
-  } catch (error) {
-    return res.status(500).json({ error: error.message });
-  }
-};
 export default {
   authenticate,
   signUp,
@@ -473,5 +441,4 @@ export default {
   googleLogin,
   sendResetLink,
   mobileLogin,
-  getArtistInfo,
 };

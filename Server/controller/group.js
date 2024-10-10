@@ -30,7 +30,7 @@ const createJourneyRow = async (req, res) => {
 };
 const createJourneyCol = async (req, res) => {
   try {
-    const { colName } = req.body;
+    const { colName, color } = req.body;
     const existingGroup = await GroupRepository.findGroupById({
       groupId: req.groupId,
     });
@@ -41,6 +41,7 @@ const createJourneyCol = async (req, res) => {
     const newCol = await GroupRepository.createJourneyCol({
       groupId: existingGroup._id,
       name: colName,
+      color,
     });
     const newCells = existingGroup.customerJourneyMap.rows.map((row) => ({
       row: row._id,
@@ -74,7 +75,7 @@ const findGroupById = async (req, res) => {
 };
 const deleteRow = async (req, res) => {
   try {
-    const { rowId } = req.body;
+    const { rowId } = req.query;
     const updatedGroup = await GroupRepository.deleteRow({
       rowId,
       groupId: req.groupId,
@@ -86,7 +87,7 @@ const deleteRow = async (req, res) => {
 };
 const deleteCol = async (req, res) => {
   try {
-    const { colId } = req.body;
+    const { colId } = req.query;
     const updatedGroup = await GroupRepository.deleteCol({
       colId,
       groupId: req.groupId,
@@ -156,6 +157,50 @@ const updateCanvasCell = async (req, res) => {
     return res.status(500).json({ error: error.message });
   }
 };
+
+const addCustomerPersona = async (req, res) => {
+  try {
+    const { detail, bio, needs } = req.body;
+    const newPersona = { detail, bio, needs };
+    const updatedGroup = await GroupRepository.addCustomerPersona({
+      groupId: req.groupId,
+      newPersona,
+    });
+    return res.status(200).json({ data: updatedGroup });
+  } catch (error) {
+    return res.status(500).json({ error: error.message });
+  }
+};
+
+const updateCustomerPersona = async (req, res) => {
+  try {
+    const { personaId } = req.query;
+    const { detail, bio, needs } = req.body;
+    const updatedPersona = { detail, bio, needs };
+    const updatedGroup = await GroupRepository.updateCustomerPersona({
+      groupId: req.groupId,
+      personaId,
+      updatedPersona,
+    });
+    return res.status(200).json({ data: updatedGroup });
+  } catch (error) {
+    return res.status(500).json({ error: error.message });
+  }
+};
+
+const deleteCustomerPersona = async (req, res) => {
+  try {
+    const { groupId, personaId } = req.query;
+    const updatedGroup = await GroupRepository.deleteCustomerPersona({
+      groupId,
+      personaId,
+    });
+    return res.status(200).json({ data: updatedGroup });
+  } catch (error) {
+    return res.status(500).json({ error: error.message });
+  }
+}
+
 export default {
   createJourneyRow,
   createJourneyCol,
@@ -166,4 +211,7 @@ export default {
   updateColumn,
   updateRow,
   updateCanvasCell,
+  addCustomerPersona,
+  updateCustomerPersona,
+  deleteCustomerPersona
 };

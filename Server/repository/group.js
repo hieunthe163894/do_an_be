@@ -18,7 +18,7 @@ const createJourneyRow = async ({ groupId, name }) => {
     );
     const newRow =
       updatedGroup.customerJourneyMap.rows[
-        updatedGroup.customerJourneyMap.rows.length - 1
+      updatedGroup.customerJourneyMap.rows.length - 1
       ];
     return newRow;
   } catch (error) {
@@ -42,7 +42,7 @@ const createJourneyCol = async ({ groupId, name }) => {
     );
     const newCol =
       updatedGroup.customerJourneyMap.cols[
-        updatedGroup.customerJourneyMap.cols.length - 1
+      updatedGroup.customerJourneyMap.cols.length - 1
       ];
     return newCol;
   } catch (error) {
@@ -178,9 +178,6 @@ const updateRow = async ({ rowId, name, groupId }) => {
     if (name) {
       updates["customerJourneyMap.cols.$.name"] = name;
     }
-    if (color) {
-      updates["customerJourneyMap.cols.$.color"] = color;
-    }
     const updatedGroup = await Group.findOneAndUpdate(
       {
         _id: groupId,
@@ -221,11 +218,77 @@ const updateCanvasCell = async ({ name, color, content, groupId }) => {
         new: true,
       }
     );
+
     return updatedGroup;
   } catch (error) {
     return new Error(error);
   }
 };
+
+const addCustomerPersona = async ({ newPersona, groupId }) => {
+  try {
+    const updatedGroup = await Group.findByIdAndUpdate(
+      groupId,
+      {
+        $push: {
+          customerPersonas: newPersona,
+        },
+      },
+      { new: true }
+    );
+    return updatedGroup;
+  } catch (error) {
+    throw new Error(error);
+  }
+};
+
+const updateCustomerPersona = async ({ groupId, personaId, updatedPersona }) => {
+  try {
+    const updateFields = {};
+    if (updatedPersona.detail) {
+      for (const [key, value] of Object.entries(updatedPersona.detail)) {
+        updateFields[`customerPersonas.$.detail.${key}`] = value;
+      }
+    }
+    if (updatedPersona.bio) {
+      updateFields["customerPersonas.$.bio"] = updatedPersona.bio;
+    }
+    if (updatedPersona.needs) {
+      updateFields["customerPersonas.$.needs"] = updatedPersona.needs;
+    }
+
+    const updatedGroup = await Group.findOneAndUpdate(
+      { _id: groupId, "customerPersonas._id": personaId },
+      {
+        $set: updateFields,
+      },
+      { new: true }
+    );
+
+    return updatedGroup;
+  } catch (error) {
+    throw new Error(error);
+  }
+};
+
+const deleteCustomerPersona = async ({ groupId, personaId }) => {
+  try {
+    const updatedGroup = await Group.findByIdAndUpdate(
+      groupId,
+      {
+        $pull: {
+          customerPersonas: { _id: personaId },
+        },
+      },
+      { new: true }
+    );
+    return updatedGroup;
+  } catch (error) {
+    throw new Error(error);
+  }
+};
+
+
 export default {
   createCellsOnUpdate,
   createJourneyRow,
@@ -236,5 +299,8 @@ export default {
   updateCellContent,
   updateColumn,
   updateRow,
-  updateCanvasCell
+  updateCanvasCell,
+  addCustomerPersona,
+  updateCustomerPersona,
+  deleteCustomerPersona,
 };

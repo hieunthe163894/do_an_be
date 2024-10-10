@@ -4,7 +4,7 @@ const SubmissionSchema = new Schema(
   {
     student: {
       type: Schema.Types.ObjectId,
-      ref: 'Student', 
+      ref: 'Student',
       required: true,
     },
     attachment: {
@@ -21,17 +21,17 @@ const SubmissionSchema = new Schema(
           type: Number,
           required: true,
           min: 0,
-          max: 100, 
+          max: 100,
         },
         grade: {
           type: Number,
-          required: true, 
+          required: true,
         },
       },
     ],
     group: {
       type: Schema.Types.ObjectId,
-      ref: 'Group', 
+      ref: 'Group',
       required: true,
     },
     classworkId: {
