@@ -1,10 +1,6 @@
 import mongoose, { Schema } from "mongoose";
 
 const GradingCriteriaSchema = new Schema({
-  id: {
-    type: String,
-    required: true,
-  },
   description: {
     type: String,
     required: false, 
@@ -50,7 +46,6 @@ const ClassworkSchema = new Schema(
     GradingCriteria: [
       {
         type: GradingCriteriaSchema,
-        default: {},
       },
     ],
   },

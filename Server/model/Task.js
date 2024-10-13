@@ -3,10 +3,10 @@ import Student from "./Student.js";
 import TimeBlock from "./TimeBlock.js";
 const TaskSchema = new Schema(
   {
-    taskType:{
+    taskType: {
       type: String,
-      // required: true,
-      enum: ["class work", "group task"]
+      required: true,
+      enum: ["Class work", "Group task"],
     },
     taskName: {
       type: String,
@@ -14,17 +14,15 @@ const TaskSchema = new Schema(
     },
     description: {
       type: String,
-      // required: true,
+      required: true,
     },
     attachment: {
       type: String,
-      // required: false,
     },
     status: {
       type: String,
-      enum: ["Pending", "In Progress", "Done"],
+      enum: ["Pending", "In Progress", "Done", "Need Review"],
       default: "Pending",
-      // required: true,
     },
     assignee: {
       type: Schema.Types.ObjectId,
@@ -34,34 +32,33 @@ const TaskSchema = new Schema(
     createdBy: {
       type: Schema.Types.ObjectId,
       ref: "Student",
-      // required: true,
     },
-    group:{
+    group: {
       type: Schema.Types.ObjectId,
       ref: "Group",
-      // required: true,
+      required: true,
     },
     classwork: {
       type: Schema.Types.ObjectId,
       ref: "Classwork",
-      // required: true,
     },
     timeblock: {
       type: Schema.Types.ObjectId,
       ref: "TimeBlock",
-      // required: true,
     },
     dueDate: {
       type: Date,
     },
     parentTask: {
       type: Schema.Types.ObjectId,
-      ref: "Task" 
+      ref: "Task",
     },
-    childTasks: [{
-      type: Schema.Types.ObjectId,
-      ref: "Task" 
-    }]
+    childTasks: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: "Task",
+      },
+    ],
   },
   { timestamps: true, collection: "Tasks" }
 );

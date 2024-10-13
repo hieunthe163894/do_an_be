@@ -18,7 +18,7 @@ authenticationRouter.patch(
 );
 authenticationRouter.get(
   "/refreshToken",
-  AuthenticationController.refreshToken
+  AuthenticationController.refreshToken1
 );
 authenticationRouter.get("/logOut", AuthenticationController.logOut);
 authenticationRouter.get(

@@ -33,12 +33,7 @@ const getTeacherByStudentId = async (req, res) => {
 const getStudentsInSameGroup = async (req, res) => {
     try {
       const decodedToken = req.decodedToken;
-      const student = await StudentRepository.findStudentByAccountId(decodedToken.account);
-  
-      if (!student) {
-        return res.status(403).json({ message: "Unauthorized" });
-      }
-  
+      const student = await StudentRepository.findStudentByAccountId(decodedToken.account);  
       const students = await StudentRepository.getStudentsByGroup(student.group._id);
       return res.status(200).json({data:students});
     } catch (error) {
