@@ -3,7 +3,6 @@ import Student from "../model/Student.js";
 import Class from "../model/Class.js";
 import Teacher from "../model/Teacher.js";
 import Mentor from "../model/Mentor.js";
-import mongoose from "mongoose";
 const findStudentByAccountId = async (accountId) => {
   try {
     const student = await Student.findOne({
@@ -73,7 +72,7 @@ const getTeacherByStudentId = async (userId) => {
 }
 const getStudentsByGroup = async (groupId) => {
   try {
-    const students = await Student.find({ group: groupId }).select('_id name');
+    const students = await Student.find({ group: groupId }).select('_id name studentId ');
     return students;
   } catch (error) {
     throw new Error(error.message);

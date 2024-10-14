@@ -4,10 +4,29 @@ import verifyToken from "../middleware/verifyToken.js";
 import authorization from "../middleware/authorization.js";
 const taskRouter = express.Router();
 
-taskRouter.post('/create',verifyToken, TaskController.createTask);
-taskRouter.get('/:taskId',verifyToken, TaskController.viewTaskDetail);
-taskRouter.put('/:taskId',verifyToken, TaskController.updateTask);
-taskRouter.get('/viewTaskByGroup/:groupId',verifyToken, TaskController.getTasksByGroup);
+taskRouter.post(
+  "/create",
+  verifyToken,
+  authorization.checkGroupAccess,
+  TaskController.createTask
+);
+taskRouter.get(
+  "/:taskId",
+  verifyToken,
+  authorization.checkGroupAccess,
+  TaskController.viewTaskDetail
+);
+taskRouter.patch(
+  "/updateTask",
+  verifyToken,
+  authorization.checkGroupAccess,
+  TaskController.updateTask
+);
+taskRouter.post(
+  "/viewGroupTask",
+  verifyToken,
+  authorization.checkGroupAccess,
+  TaskController.getTasksByGroup
+);
 
 export default taskRouter;
-

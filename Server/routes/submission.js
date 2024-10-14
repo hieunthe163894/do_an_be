@@ -4,7 +4,7 @@ import authorization from "../middleware/authorization.js";
 import { SubmissionController } from "../controller/index.js";
 
 const submissionRouter = express.Router();
-submissionRouter.post("/createSubmission/:classworkId",
+submissionRouter.post("/createSubmission",
     verifyToken,
     authorization.checkGroupAccess,
     SubmissionController.createSubmission)

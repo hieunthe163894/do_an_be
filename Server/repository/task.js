@@ -1,14 +1,39 @@
-import Task from '../model/Task.js';
-import Account from '../model/Account.js';
-import Classwork from '../model/ClassWork.js';
-import TimeBlock from '../model/TimeBlock.js';
-import Student from '../model/Student.js';
+import Task from "../model/Task.js";
+import Account from "../model/Account.js";
+import Classwork from "../model/ClassWork.js";
+import TimeBlock from "../model/TimeBlock.js";
+import Student from "../model/Student.js";
 
-
-const createTask = async ({ taskType,group, taskName, createdBy, description, attachment, status, assignee, classwork, timeblock, dueDate, parentTask, childTasks }) => {
+const createTask = async ({
+  taskType,
+  group,
+  taskName,
+  createdBy,
+  description,
+  attachment,
+  status,
+  assignee,
+  classwork,
+  timeblock,
+  dueDate,
+  parentTask,
+  childTasks,
+}) => {
   try {
     const result = await Task.create({
-      taskType, taskName, description,group, attachment, status, createdBy, assignee, classwork, timeblock, dueDate, parentTask, childTasks
+      taskType,
+      taskName,
+      description,
+      group,
+      attachment,
+      status,
+      createdBy,
+      assignee,
+      classwork,
+      timeblock,
+      dueDate,
+      parentTask,
+      childTasks,
     });
     return result._doc;
   } catch (error) {
@@ -16,43 +41,48 @@ const createTask = async ({ taskType,group, taskName, createdBy, description, at
   }
 };
 
-export const viewTaskDetail = async (taskId) => {
+const viewTaskDetail = async (taskId) => {
   try {
     const task = await Task.findById(taskId)
       .populate({
-        path: 'assignee',
-        select: 'name',
+        path: "assignee",
+        select: "name",
         populate: {
-          path: 'account',
-          select: 'profilePicture -_id',
-        }
+          path: "account",
+          select: "profilePicture -_id",
+        },
       })
       .populate({
-        path: 'parentTask',
-        select: '_id taskName dueDate assignee',
+        path: "parentTask",
+        select: "_id taskName dueDate assignee",
       })
       .populate({
-        path: 'childTasks',
-        select: '_id taskName dueDate assignee'
+        path: "childTasks",
+        select: "_id taskName dueDate assignee",
       })
       .populate({
-        path: 'createdBy',
-        select: '_id name',
+        path: "createdBy",
+        select: "_id name",
         populate: {
-          path: 'account',
-          select: 'profilePicture -_id',
-        }
+          path: "account",
+          select: "profilePicture -_id",
+        },
       })
       .populate({
-        path: 'group',   // Populate group details
-        select: '_id GroupName'
+        path: "group", // Populate group details
+        select: "_id GroupName",
       })
       .lean();
 
     if (!task) {
       throw new Error("Task not found");
     }
-    if (task.assignee && task.assignee.account && task.createdBy && task.createdBy.account) {
+    if (
+      task.assignee &&
+      task.assignee.account &&
+      task.createdBy &&
+      task.createdBy.account
+    ) {
       task.assignee.profilePicture = task.assignee.account.profilePicture;
       task.createdBy.profilePicture = task.createdBy.account.profilePicture;
       delete task.createdBy.account;
@@ -61,11 +91,11 @@ export const viewTaskDetail = async (taskId) => {
 
     return task;
   } catch (error) {
-    throw new Error('Error fetching task details: ' + error.message);
+    throw new Error("Error fetching task details: " + error.message);
   }
 };
 
-export const updatedTask = async (taskId, updateData) => {
+const updatedTask = async (taskId, updateData) => {
   try {
     const updatedTask = await Task.findByIdAndUpdate(
       taskId,
@@ -73,26 +103,30 @@ export const updatedTask = async (taskId, updateData) => {
       { new: true }
     )
       .populate({
-        path: 'assignee',
-        select: 'name',
+        path: "assignee",
+        select: "name",
         populate: {
-          path: 'account',
-          select: 'profilePicture -_id',
-        }
+          path: "account",
+          select: "profilePicture -_id",
+        },
       })
       .populate({
-        path: 'parentTask',
-        select: 'taskName dueDate assignee'
+        path: "childTasks",
+        select: "_id taskType taskName dueDate assignee",
       })
       .populate({
-        path: 'childTasks',
-        select: 'taskName'
+        path: "parentTask",
+        select: "_id taskType taskName dueDate assignee",
       })
-      
-    if (updatedTask.assignee && updatedTask.assignee.account) {
-      updatedTask.assignee.profilePicture = updatedTask.assignee.account.profilePicture;
-      delete updatedTask.assignee.account;
-    }
+      .populate({
+        path: "createdBy",
+        select: "_id name",
+        populate: {
+          path: "account",
+          select: "profilePicture",
+        },
+      })
+      .lean();
 
     return updatedTask;
   } catch (error) {
@@ -100,71 +134,66 @@ export const updatedTask = async (taskId, updateData) => {
   }
 };
 
-
-export const viewListTaskInGroup = async (groupId, filters) => {
+const viewListTaskInGroup = async ({
+  groupId,
+  status,
+  taskType,
+  assignee,
+  search,
+}) => {
   try {
-    const studentsInGroup = await Student.find({ group: groupId }).select('_id').lean();
-    
-    if (studentsInGroup.length === 0) {
-      throw new Error('No students found in this group');
-    }
-    
-    const studentIds = studentsInGroup.map(student => student._id);
-
     const query = {
-      createdBy: { $in: studentIds }
+      group: groupId,
     };
-
-    // Enable partial matching for taskType
-    if (filters.taskType) {
-      query.taskType = { $regex: filters.taskType, $options: "i" }; // Case-insensitive search
+    if (taskType) {
+      query.taskType = taskType;
+    }
+    if (assignee && assignee.length > 0) {
+      query.assignee = { $in: assignee };
+    }
+    if (status && status !== "All") {
+      query.status = status;
     }
 
-    // Enable partial matching for assignee
-    if (filters.assignee) {
-      query.assignee = { $regex: filters.assignee, $options: "i" }; // Case-insensitive search
-    }
-
-    // Enable partial matching for status
-    if (filters.status) {
-      query.status = { $regex: filters.status, $options: "i" }; // Case-insensitive search
-    }
-
-    // Enable partial matching for search
-    if (filters.search) {
-      query.taskName = { $regex: filters.search, $options: "i" }; // Case-insensitive search
+    if (!!search || search !== "") {
+      query.taskName = { $regex: search, $options: "i" };
     }
 
     const tasks = await Task.find(query)
       .populate({
-        path: 'assignee',
-        select: 'name',
+        path: "assignee",
+        select: "name",
         populate: {
-          path: 'account',
-          select: 'profilePicture -_id',
-        }
+          path: "account",
+          select: "profilePicture -_id",
+        },
       })
       .populate({
-        path: 'childTasks',
-        select: '_id taskName dueDate assignee'
+        path: "childTasks",
+        select: "_id taskType taskName dueDate assignee",
+      })
+      .populate({
+        path: "parentTask",
+        select: "_id taskType taskName dueDate assignee",
+      })
+      .populate({
+        path: "createdBy",
+        select: "_id name",
+        populate: {
+          path: "account",
+          select: "profilePicture",
+        },
       })
       .lean();
 
-    tasks.forEach(task => {
-      if (task.assignee && task.assignee.account) {
-        task.assignee.profilePicture = task.assignee.account.profilePicture;
-        delete task.assignee.account;
-      }
-    });
-
     return tasks;
   } catch (error) {
-    throw new Error('Error fetching tasks: ' + error.message);
+    throw new Error("Error fetching tasks: " + error.message);
   }
 };
 export default {
   createTask,
   viewTaskDetail,
   updatedTask,
-  viewListTaskInGroup
+  viewListTaskInGroup,
 };

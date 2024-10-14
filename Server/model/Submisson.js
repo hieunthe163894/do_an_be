@@ -4,37 +4,33 @@ const SubmissionSchema = new Schema(
   {
     student: {
       type: Schema.Types.ObjectId,
-      ref: 'Student', 
+      ref: "Student",
       required: true,
     },
     attachment: {
       type: String,
       required: true,
     },
-    grade:
-      {
-        gradingCriteria: [{
-          type: String,
-          required: false,
-        }],
-        grade: {
-          type: Number,
-          required: true, 
-        },
-      },
+    grade: {
+      type: Number,
+    },
+    passedCriteria: {
+      type: [Schema.Types.ObjectId],
+      default: [],
+    },
     group: {
       type: Schema.Types.ObjectId,
-      ref: 'Group', 
+      ref: "Group",
       required: true,
     },
-    classworkId: {
+    classworkId: { 
       type: Schema.Types.ObjectId,
-      ref: 'Classwork',
+      ref: "Classwork",
       required: true,
     },
   },
-  { timestamps: true, collection: 'Submissions' }
+  { timestamps: true, collection: "Submissions" }
 );
 
-const Submission = mongoose.model('Submission', SubmissionSchema);
+const Submission = mongoose.model("Submission", SubmissionSchema);
 export default Submission;
